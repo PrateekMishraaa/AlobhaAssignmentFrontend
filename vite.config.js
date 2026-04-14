@@ -16,20 +16,4 @@ export default defineConfig({
       },
     },
   },
-  // Optional: Add these for better development experience
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'lucide-react'],
-  },
-  build: {
-    // Optimize for production
-    sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['lucide-react', 'react-hot-toast'],
-        },
-      },
-    },
-  },
 })
