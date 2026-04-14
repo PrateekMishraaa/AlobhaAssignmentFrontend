@@ -55,7 +55,6 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
       setCharCount(value.length);
     }
     
-  
     if (errors[name]) {
       setErrors({ ...errors, [name]: '' });
     }
@@ -71,7 +70,6 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
     
     setLoading(true);
     
-
     await new Promise(resolve => setTimeout(resolve, 800));
     
     const success = await onUpdate(task._id, formData);
@@ -89,25 +87,26 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
   ];
 
   const priorityOptions = [
-    { value: 'low', label: 'Low', color: 'text-green-600', bgColor: 'bg-green-50 dark:bg-green-900/20', emoji: '🟢' },
-    { value: 'medium', label: 'Medium', color: 'text-yellow-600', bgColor: 'bg-yellow-50 dark:bg-yellow-900/20', emoji: '🟡' },
-    { value: 'high', label: 'High', color: 'text-red-600', bgColor: 'bg-red-50 dark:bg-red-900/20', emoji: '🔴' },
+    { value: 'low', label: 'Low', color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-50 dark:bg-green-900/20', emoji: '🟢' },
+    { value: 'medium', label: 'Medium', color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-50 dark:bg-yellow-900/20', emoji: '🟡' },
+    { value: 'high', label: 'High', color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-50 dark:bg-red-900/20', emoji: '🔴' },
   ];
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
- 
+      {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
         onClick={onClose}
       />
-  
+      
+      {/* Modal Container */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl transition-all duration-300 animate-slide-in">
           
-      
+          {/* Header with Gradient Background */}
           <div className="relative bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -126,11 +125,11 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
             <p className="text-white/80 text-sm mt-2">Update your task details below</p>
           </div>
           
-          
+          {/* Form Body */}
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
-   
+            {/* Title Field */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              <label className="block text-sm font-semibold text-black dark:text-gray-200">
                 Task Title <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -141,11 +140,11 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
                   value={formData.title}
                   onChange={handleChange}
                   placeholder="Enter task title..."
-                  className={`w-full pl-10 pr-4 py-2.5 border-2 rounded-lg transition-all duration-200
+                  className={`w-full pl-10 pr-4 py-2.5 text-black border-2 rounded-lg transition-all duration-200
                     ${errors.title 
                       ? 'border-red-500 focus:border-red-500 bg-red-50 dark:bg-red-900/10' 
                       : 'border-gray-200 dark:border-gray-700 focus:border-purple-500'
-                    } focus:outline-none bg-white dark:bg-gray-800`}
+                    } focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
                 />
               </div>
               {errors.title && (
@@ -156,10 +155,10 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
               )}
             </div>
             
-           
+            {/* Description Field */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                Description <span className="text-gray-400">(Optional)</span>
+              <label className="block text-sm font-semibold text-black dark:text-gray-200">
+                Description <span className="text-gray-500 dark:text-gray-400">(Optional)</span>
               </label>
               <textarea
                 name="description"
@@ -171,11 +170,11 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
                   ${errors.description 
                     ? 'border-red-500 focus:border-red-500 bg-red-50 dark:bg-red-900/10' 
                     : 'border-gray-200 dark:border-gray-700 focus:border-purple-500'
-                  } focus:outline-none bg-white dark:bg-gray-800`}
+                  } focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
               />
               <div className="flex justify-between items-center text-xs">
-                <span className="text-gray-500">Maximum 500 characters</span>
-                <span className={`${charCount > 500 ? 'text-red-500 font-semibold' : 'text-gray-400'}`}>
+                <span className="text-gray-500 dark:text-gray-400">Maximum 500 characters</span>
+                <span className={`${charCount > 500 ? 'text-red-500 font-semibold' : 'text-gray-400 dark:text-gray-500'}`}>
                   {charCount}/500
                 </span>
               </div>
@@ -187,11 +186,11 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
               )}
             </div>
             
-            
+            {/* Status and Priority Row */}
             <div className="grid grid-cols-2 gap-4">
-             
+              {/* Status Selection */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                <label className="block text-sm font-semibold text-black dark:text-gray-200">
                   Status
                 </label>
                 <div className="space-y-2">
@@ -220,9 +219,9 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
                 </div>
               </div>
               
-              
+              {/* Priority Selection */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                <label className="block text-sm font-semibold text-black dark:text-gray-200">
                   Priority
                 </label>
                 <div className="space-y-2">
@@ -251,10 +250,11 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
                 </div>
               </div>
             </div>
-       
+            
+            {/* Due Date Field */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                Due Date <span className="text-gray-400">(Optional)</span>
+              <label className="block text-sm font-semibold text-black dark:text-gray-200">
+                Due Date <span className="text-gray-500 dark:text-gray-400">(Optional)</span>
               </label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -263,12 +263,12 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
                   name="dueDate"
                   value={formData.dueDate}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none bg-white dark:bg-gray-800 transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-200"
                 />
               </div>
             </div>
             
-            
+            {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
               <button
                 type="submit"
@@ -301,7 +301,7 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
         </div>
       </div>
       
-    
+      {/* Loading Overlay inside modal */}
       {loading && (
         <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm flex items-center justify-center rounded-2xl">
           <LoadingSpinner size="md" message="Updating task..." />
