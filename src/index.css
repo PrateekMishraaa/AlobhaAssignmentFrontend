@@ -202,3 +202,24 @@ html {
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+/* Dark mode support */
+@layer base {
+  :root {
+    color-scheme: light dark;
+  }
+  
+  html {
+    transition: background-color 0.3s ease;
+  }
+  
+  html.dark {
+    color-scheme: dark;
+  }
+}
+
+/* Smooth theme transition */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}

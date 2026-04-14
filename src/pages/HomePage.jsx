@@ -3,12 +3,38 @@ import { Link } from 'react-router-dom';
 import { 
   ArrowRight, CheckCircle, Clock, Sparkles, TrendingUp, 
   Zap, Award, Rocket, Shield, Star, Gem, Crown, 
-  ThumbsUp, Heart, Coffee
+  ThumbsUp, Heart, Coffee, Moon, Sun
 } from 'lucide-react';
 
 const HomePage = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Check system preference and saved theme
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    if (!isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   const features = [
     { icon: CheckCircle, title: 'Easy Task Management', desc: 'Create, update, and delete tasks effortlessly', color: 'from-green-500 to-emerald-500', delay: 0 },
@@ -66,36 +92,57 @@ const HomePage = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-
-  const UsersIcon = ({ className }) => (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-    </svg>
-  );
-
   return (
-    <div className="min-h-screen overflow-x-hidden">
-    
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-700 via-pink-600 to-indigo-800 opacity-90"></div>
+    <div className="min-h-screen overflow-x-hidden transition-colors duration-300">
+      {/* Theme Toggle Button */}
+      <button
+        onClick={toggleTheme}
+        className="fixed top-24 right-4 z-50 p-3 rounded-full bg-white/20 dark:bg-gray-800/20 backdrop-blur-lg border border-white/30 dark:border-gray-700/30 shadow-lg hover:scale-110 transition-all duration-300 group"
+        aria-label="Toggle theme"
+      >
+        {isDarkMode ? (
+          <Sun className="w-5 h-5 text-yellow-400 group-hover:rotate-90 transition-transform duration-300" />
+        ) : (
+          <Moon className="w-5 h-5 text-purple-600 group-hover:rotate-12 transition-transform duration-300" />
+        )}
+      </button>
+
+      {/* Background - Changes with theme */}
+      <div className="fixed inset-0 pointer-events-none transition-colors duration-500">
+        <div className={`absolute inset-0 transition-opacity duration-500 ${
+          isDarkMode 
+            ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 opacity-100' 
+            : 'bg-gradient-to-br from-purple-700 via-pink-600 to-indigo-800 opacity-90'
+        }`}></div>
       </div>
 
+      {/* Mouse Follower Glow - Theme aware */}
       <div 
         className="fixed w-96 h-96 rounded-full pointer-events-none transition-all duration-300 ease-out z-10"
         style={{
-          background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0) 70%)',
+          background: `radial-gradient(circle, ${
+            isDarkMode 
+              ? 'rgba(139,92,246,0.2) 0%, rgba(139,92,246,0) 70%'
+              : 'rgba(139,92,246,0.15) 0%, rgba(139,92,246,0) 70%'
+          })`,
           left: mousePosition.x - 192,
           top: mousePosition.y - 192,
         }}
       />
 
-     
+      {/* Hero Section */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      
+        {/* Floating Orbs - Theme aware */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-float opacity-30"></div>
-          <div className="absolute bottom-20 right-10 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-float-delay opacity-30"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse opacity-20"></div>
+          <div className={`absolute top-20 left-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl animate-float opacity-30 ${
+            isDarkMode ? 'bg-purple-600' : 'bg-purple-500'
+          }`}></div>
+          <div className={`absolute bottom-20 right-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl animate-float-delay opacity-30 ${
+            isDarkMode ? 'bg-pink-600' : 'bg-pink-500'
+          }`}></div>
+          <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl animate-pulse opacity-20 ${
+            isDarkMode ? 'bg-indigo-600' : 'bg-indigo-500'
+          }`}></div>
         </div>
 
         <div className="relative text-center px-4 z-20">
@@ -139,7 +186,7 @@ const HomePage = () => {
             </Link>
           </div>
 
-    
+          {/* Scroll Indicator */}
           <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
             <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
               <div className="w-1 h-2 bg-white/50 rounded-full mt-2 animate-scroll"></div>
@@ -148,35 +195,46 @@ const HomePage = () => {
         </div>
       </div>
 
+      {/* Stats Section - Theme aware cards */}
       <div className="relative py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
               <div 
                 key={index} 
-                className="group relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-lg p-6 text-center hover:transform hover:scale-105 transition-all duration-300"
+                className={`group relative overflow-hidden rounded-2xl p-6 text-center hover:transform hover:scale-105 transition-all duration-300 ${
+                  isDarkMode 
+                    ? 'bg-gray-800/50 backdrop-blur-lg border border-gray-700/50'
+                    : 'bg-white/10 backdrop-blur-lg'
+                }`}
               >
                 <div className={`absolute inset-0 bg-gradient-to-r ${stat.gradient} opacity-0 group-hover:opacity-20 transition-opacity`}></div>
                 <div className={`w-14 h-14 rounded-full bg-gradient-to-r ${stat.gradient} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
                   <stat.icon className="w-7 h-7 text-white" />
                 </div>
-                <p className="text-4xl md:text-5xl font-bold text-white mb-2">
+                <p className={`text-4xl md:text-5xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-white'}`}>
                   {stat.value}
                 </p>
-                <p className="text-white/80 font-medium">{stat.label}</p>
+                <p className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-white/80'}`}>{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-     
+      {/* Features Section */}
       <div className="relative py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg rounded-full px-4 py-2 mb-4">
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 mb-4 ${
+              isDarkMode 
+                ? 'bg-gray-800/50 backdrop-blur-lg'
+                : 'bg-white/10 backdrop-blur-lg'
+            }`}>
               <Gem className="w-4 h-4 text-yellow-400" />
-              <span className="text-white/90 text-sm font-medium">Premium Features</span>
+              <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-white/90'}`}>
+                Premium Features
+              </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
               Why Choose{' '}
@@ -185,7 +243,7 @@ const HomePage = () => {
               </span>
               ?
             </h2>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
+            <p className={`text-xl max-w-2xl mx-auto ${isDarkMode ? 'text-gray-300' : 'text-white/80'}`}>
               Discover the power of organized task management
             </p>
           </div>
@@ -194,13 +252,21 @@ const HomePage = () => {
             {features.map((feature, index) => (
               <div 
                 key={index} 
-                className="group relative bg-white/10 backdrop-blur-lg rounded-2xl p-6 text-center hover:transform hover:scale-105 transition-all duration-300"
+                className={`group relative rounded-2xl p-6 text-center hover:transform hover:scale-105 transition-all duration-300 ${
+                  isDarkMode 
+                    ? 'bg-gray-800/50 backdrop-blur-lg border border-gray-700/50'
+                    : 'bg-white/10 backdrop-blur-lg'
+                }`}
               >
                 <div className={`w-20 h-20 rounded-full bg-gradient-to-r ${feature.color} flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                   <feature.icon className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-                <p className="text-white/70">{feature.desc}</p>
+                <h3 className={`text-xl font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-white'}`}>
+                  {feature.title}
+                </h3>
+                <p className={isDarkMode ? 'text-gray-300' : 'text-white/70'}>
+                  {feature.desc}
+                </p>
                 <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <ArrowRight className="w-5 h-5 text-white/50 mx-auto" />
                 </div>
@@ -210,13 +276,19 @@ const HomePage = () => {
         </div>
       </div>
 
- 
+      {/* Testimonial Section */}
       <div className="relative py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg rounded-full px-4 py-2 mb-4">
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 mb-4 ${
+              isDarkMode 
+                ? 'bg-gray-800/50 backdrop-blur-lg'
+                : 'bg-white/10 backdrop-blur-lg'
+            }`}>
               <Heart className="w-4 h-4 text-red-400" />
-              <span className="text-white/90 text-sm font-medium">Loved by Users</span>
+              <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-white/90'}`}>
+                Loved by Users
+              </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
               What Our{' '}
@@ -234,14 +306,18 @@ const HomePage = () => {
               >
                 {testimonials.map((testimonial, index) => (
                   <div key={index} className="w-full flex-shrink-0 px-4">
-                    <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 relative">
+                    <div className={`rounded-2xl p-8 relative ${
+                      isDarkMode 
+                        ? 'bg-gray-800/50 backdrop-blur-lg border border-gray-700/50'
+                        : 'bg-white/10 backdrop-blur-lg'
+                    }`}>
                       <div className="relative">
                         <div className="flex gap-1 mb-4">
                           {[...Array(testimonial.rating)].map((_, i) => (
                             <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                           ))}
                         </div>
-                        <p className="text-lg text-white/90 mb-6 italic leading-relaxed">
+                        <p className={`text-lg mb-6 italic leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-white/90'}`}>
                           "{testimonial.text}"
                         </p>
                         <div className="flex items-center gap-4">
@@ -249,8 +325,12 @@ const HomePage = () => {
                             <span className="text-white font-bold">{testimonial.image}</span>
                           </div>
                           <div>
-                            <p className="font-bold text-white">{testimonial.name}</p>
-                            <p className="text-sm text-white/70">{testimonial.role} at {testimonial.company}</p>
+                            <p className={`font-bold ${isDarkMode ? 'text-white' : 'text-white'}`}>
+                              {testimonial.name}
+                            </p>
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-white/70'}`}>
+                              {testimonial.role} at {testimonial.company}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -260,7 +340,7 @@ const HomePage = () => {
               </div>
             </div>
 
-          
+            {/* Dots Indicator */}
             <div className="flex justify-center gap-2 mt-8">
               {testimonials.map((_, index) => (
                 <button
@@ -278,17 +358,21 @@ const HomePage = () => {
         </div>
       </div>
 
-   
+      {/* CTA Section */}
       <div className="relative py-20 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl blur-xl opacity-75 group-hover:opacity-100 transition-opacity animate-gradient"></div>
-            <div className="relative bg-gradient-to-r from-purple-900/90 to-indigo-900/90 backdrop-blur-lg rounded-3xl p-12 text-center overflow-hidden">
+            <div className={`relative rounded-3xl p-12 text-center overflow-hidden ${
+              isDarkMode 
+                ? 'bg-gradient-to-r from-gray-900/90 to-purple-900/90 backdrop-blur-lg'
+                : 'bg-gradient-to-r from-purple-900/90 to-indigo-900/90 backdrop-blur-lg'
+            }`}>
               <Crown className="w-16 h-16 text-yellow-400 mx-auto mb-6 animate-bounce-slow" />
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
                 Ready to boost your productivity?
               </h2>
-              <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+              <p className={`text-xl mb-8 max-w-2xl mx-auto ${isDarkMode ? 'text-gray-300' : 'text-white/80'}`}>
                 Join thousands of users who trust TaskMaster for their daily task management.
               </p>
               <div className="flex gap-4 justify-center flex-wrap">
