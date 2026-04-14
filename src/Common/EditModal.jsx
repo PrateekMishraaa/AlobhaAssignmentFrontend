@@ -96,17 +96,15 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
+    
       <div 
         className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
         onClick={onClose}
       />
-      
-      {/* Modal Container */}
+     
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl transition-all duration-300 animate-slide-in">
           
-          {/* Header with Gradient Background */}
           <div className="relative bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -125,9 +123,9 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
             <p className="text-white/80 text-sm mt-2">Update your task details below</p>
           </div>
           
-          {/* Form Body */}
+      
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
-            {/* Title Field */}
+         
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-black dark:text-gray-200">
                 Task Title <span className="text-red-500">*</span>
@@ -155,7 +153,7 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
               )}
             </div>
             
-            {/* Description Field */}
+         
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-black dark:text-gray-200">
                 Description <span className="text-gray-500 dark:text-gray-400">(Optional)</span>
@@ -186,9 +184,9 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
               )}
             </div>
             
-            {/* Status and Priority Row */}
+          
             <div className="grid grid-cols-2 gap-4">
-              {/* Status Selection */}
+              
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-black dark:text-gray-200">
                   Status
@@ -219,7 +217,7 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
                 </div>
               </div>
               
-              {/* Priority Selection */}
+        
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-black dark:text-gray-200">
                   Priority
@@ -251,7 +249,7 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
               </div>
             </div>
             
-            {/* Due Date Field */}
+     
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-black dark:text-gray-200">
                 Due Date <span className="text-gray-500 dark:text-gray-400">(Optional)</span>
@@ -268,7 +266,7 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
               </div>
             </div>
             
-            {/* Action Buttons */}
+         
             <div className="flex gap-3 pt-4">
               <button
                 type="submit"
@@ -300,8 +298,7 @@ const EditModal = ({ task, isOpen, onClose, onUpdate }) => {
           </form>
         </div>
       </div>
-      
-      {/* Loading Overlay inside modal */}
+
       {loading && (
         <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm flex items-center justify-center rounded-2xl">
           <LoadingSpinner size="md" message="Updating task..." />
