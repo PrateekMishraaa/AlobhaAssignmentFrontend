@@ -40,7 +40,7 @@ const AddTaskPage = () => {
     <div className="max-w-2xl mx-auto">
       <h1 className="text-3xl font-bold text-white mb-8">Add New Task</h1>
       
-      <div className="glass-effect rounded-2xl p-8">
+      <div className="glass-effect rounded-2xl p-8 text-black">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative">
             <input
@@ -61,7 +61,7 @@ const AddTaskPage = () => {
             onChange={handleChange}
             placeholder="Enter task description (optional)"
             rows="4"
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-black focus:border-purple-500 focus:outline-none transition-all"
           />
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

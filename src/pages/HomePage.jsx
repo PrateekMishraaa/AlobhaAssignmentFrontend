@@ -94,7 +94,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden transition-colors duration-300">
-      {/* Theme Toggle Button */}
+     
       <button
         onClick={toggleTheme}
         className="fixed top-24 right-4 z-50 p-3 rounded-full bg-white/20 dark:bg-gray-800/20 backdrop-blur-lg border border-white/30 dark:border-gray-700/30 shadow-lg hover:scale-110 transition-all duration-300 group"
@@ -107,7 +107,7 @@ const HomePage = () => {
         )}
       </button>
 
-      {/* Background - Changes with theme */}
+   
       <div className="fixed inset-0 pointer-events-none transition-colors duration-500">
         <div className={`absolute inset-0 transition-opacity duration-500 ${
           isDarkMode 
@@ -116,7 +116,7 @@ const HomePage = () => {
         }`}></div>
       </div>
 
-      {/* Mouse Follower Glow - Theme aware */}
+
       <div 
         className="fixed w-96 h-96 rounded-full pointer-events-none transition-all duration-300 ease-out z-10"
         style={{
@@ -130,9 +130,9 @@ const HomePage = () => {
         }}
       />
 
-      {/* Hero Section */}
+     
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Floating Orbs - Theme aware */}
+     
         <div className="absolute inset-0 overflow-hidden">
           <div className={`absolute top-20 left-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl animate-float opacity-30 ${
             isDarkMode ? 'bg-purple-600' : 'bg-purple-500'
@@ -186,7 +186,6 @@ const HomePage = () => {
             </Link>
           </div>
 
-          {/* Scroll Indicator */}
           <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
             <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
               <div className="w-1 h-2 bg-white/50 rounded-full mt-2 animate-scroll"></div>
@@ -195,7 +194,6 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Stats Section - Theme aware cards */}
       <div className="relative py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -222,7 +220,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Features Section */}
+     
       <div className="relative py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
@@ -276,7 +274,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Testimonial Section */}
+   
       <div className="relative py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">

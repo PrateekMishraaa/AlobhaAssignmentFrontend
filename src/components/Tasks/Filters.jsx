@@ -3,7 +3,7 @@ import { Filter, RefreshCw } from 'lucide-react';
 
 const Filters = ({ filters, onFilterChange, onRefresh }) => {
   return (
-    <div className="glass-effect rounded-xl p-6 mb-8">
+    <div className="glass-effect rounded-xl p-6 mb-8 text-black">
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <Filter className="w-5 h-5 text-gray-600" />
