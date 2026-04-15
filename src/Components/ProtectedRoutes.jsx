@@ -1,14 +1,25 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 
 const ProtectedRoutes = ({ children }) => {
-  const token = localStorage.getItem('token')
+  const [isLoading, setIsLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   
-  if (token) {
-    return children
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    setIsAuthenticated(!!token)
+    setIsLoading(false)
+  }, [])
+  
+  if (isLoading) {
+    return <div>Loading...</div> // Or your loading component
   }
   
-  return <Navigate to="/login" replace />
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+  
+  return children
 }
 
 export default ProtectedRoutes
