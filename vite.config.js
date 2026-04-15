@@ -16,12 +16,10 @@ export default defineConfig({
       },
     },
   },
-  // Optional: Add these for better development experience
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', 'lucide-react'],
   },
   build: {
-    // Optimize for production
     sourcemap: false,
     rollupOptions: {
       output: {
@@ -31,5 +29,15 @@ export default defineConfig({
         },
       },
     },
+  },
+  // Add this to fix lightningcss error
+  css: {
+    // Use esbuild for CSS minification instead of lightningcss
+    // This avoids platform-specific binary issues
+    devSourcemap: true,
+  },
+  // Force esbuild for minification (not lightningcss)
+  esbuild: {
+    minify: true,
   },
 })
