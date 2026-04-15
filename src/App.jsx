@@ -1,13 +1,13 @@
 import React from 'react'
 import {BrowserRouter as Router,Routes,Route} from "react-router-dom"
-import Login from './Pages/Login.jsx'
-import Register from "./Pages/Register.jsx"
-import ProtectedRoutes from './Components/ProtectedRoutes.jsx'
-import HomePage from "./Pages/HomePage.jsx"
-import RtiRegistration from './Pages/RtiRegistration.jsx'
-import RtiManagement from './Pages/RtiManagement.jsx'
-import LegalCases from './Pages/LegalCases.jsx'
-import HearingCalender from './Pages/HearingCalender.jsx'
+import Login from './Pages/Login'
+import Register from "./Pages/Register"
+import ProtectedRoutes from './Components/ProtectedRoutes'
+import HomePage from "./Pages/HomePage"
+import RtiRegistration from './Pages/RtiRegistration'
+import RtiManagement from './Pages/RtiManagement'
+import LegalCases from './Pages/LegalCases'
+import HearingCalender from './Pages/HearingCalender'
 const App = () => {
   return (
   <>
