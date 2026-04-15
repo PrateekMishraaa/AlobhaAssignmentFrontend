@@ -1,521 +1,537 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Sidebar from '../Components/Sidebar';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  ArrowRight, CheckCircle, Clock, Sparkles, TrendingUp, 
-  Zap, Award, Rocket, Shield, Star, Gem, Crown, 
-  ThumbsUp, Heart, Coffee, Moon, Sun, Menu, X
-} from 'lucide-react';
+const apiUrl = import.meta.env.VITE_REACT_URL;
+console.log('api url', apiUrl);
 
 const HomePage = () => {
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [formsData, setFormsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const itemsPerPage = 10;
 
- 
+  // Check if device is mobile
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove('dark');
-    }
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    if (!isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+  useEffect(() => {
+    const fetchFormsData = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/all-forms`);
+        console.log('API Response:', response.data);
+        
+        if (response.data && response.data.forms) {
+          setFormsData(response.data.forms);
+        } else if (response.data && response.data.data && response.data.data.forms) {
+          setFormsData(response.data.data.forms);
+        } else if (Array.isArray(response.data)) {
+          setFormsData(response.data);
+        } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          setFormsData(response.data.data);
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err.response?.data?.message || 'Failed to load data');
+        setLoading(false);
+      }
+    };
+
+    fetchFormsData();
+  }, []);
+
+  const handleNavigate = () => {
+    navigate(`/rti-registration/${id}`);
   };
 
-  const features = [
-    { icon: CheckCircle, title: 'Easy Task Management', desc: 'Create, update, and delete tasks effortlessly', color: 'from-green-500 to-emerald-500', delay: 0 },
-    { icon: Clock, title: 'Track Progress', desc: 'Monitor task status and completion rates', color: 'from-blue-500 to-cyan-500', delay: 100 },
-    { icon: TrendingUp, title: 'Analytics', desc: 'View statistics and productivity insights', color: 'from-purple-500 to-pink-500', delay: 200 },
-    { icon: Zap, title: 'Fast & Responsive', desc: 'Works seamlessly on all devices', color: 'from-orange-500 to-red-500', delay: 300 },
-  ];
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
 
-  const stats = [
-    { value: '10K+', label: 'Active Users', icon: Shield, gradient: 'from-blue-500 to-cyan-500' },
-    { value: '50K+', label: 'Tasks Completed', icon: CheckCircle, gradient: 'from-green-500 to-emerald-500' },
-    { value: '99.9%', label: 'Uptime', icon: Award, gradient: 'from-purple-500 to-pink-500' },
-    { value: '24/7', label: 'Support', icon: Heart, gradient: 'from-orange-500 to-red-500' },
-  ];
-
-  const testimonials = [
-    {
-      name: 'Sarah Johnson',
-      role: 'Product Manager',
-      company: 'Tech Corp',
-      image: 'SJ',
-      text: 'TaskMaster has completely transformed how our team manages projects. The intuitive interface and powerful features have increased our productivity by 200%!',
-      rating: 5,
-    },
-    {
-      name: 'Michael Chen',
-      role: 'Freelance Developer',
-      company: 'DevStudio',
-      image: 'MC',
-      text: 'As a freelancer juggling multiple clients, TaskMaster keeps me organized and on track. The best task management tool I have ever used!',
-      rating: 5,
-    },
-    {
-      name: 'Emily Rodriguez',
-      role: 'Startup Founder',
-      company: 'InnovateLab',
-      image: 'ER',
-      text: 'From idea to execution, TaskMaster helps us stay focused and deliver results. Absolutely essential for our daily operations.',
-      rating: 5,
-    },
-  ];
-
-  const navLinks = [
-    { path: '/', label: 'Home' },
-    { path: '/tasks', label: 'My Tasks' },
-    { path: '/add-task', label: 'Add Task' },
-    { path: '/about', label: 'About' },
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [testimonials.length]);
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+  const getStatusBadge = (status) => {
+    const statusStyles = {
+      pending: 'bg-yellow-100 text-yellow-800',
+      approved: 'bg-green-100 text-green-800',
+      rejected: 'bg-red-100 text-red-800',
+      completed: 'bg-blue-100 text-blue-800'
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    return statusStyles[status] || 'bg-gray-100 text-gray-800';
+  };
+
+  const handleView = (form) => {
+    console.log('View form:', form);
+    navigate(`/rti-management/${form._id}`);
+  };
+
+  const handleEdit = (form) => {
+    console.log('Edit form:', form);
+    // Navigate to edit page or open modal
+  };
+
+  // Filter and sort data
+  const filteredData = formsData.filter(form => {
+    const matchesSearch = searchTerm === '' || 
+      form.rtiCaseNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      form.applicantName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      form.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      form.subject?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === '' || form.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const sortedData = [...filteredData].sort((a, b) => {
+    if (sortBy === 'newest') {
+      return new Date(b.dateOfReceipt) - new Date(a.dateOfReceipt);
+    } else {
+      return new Date(a.dateOfReceipt) - new Date(b.dateOfReceipt);
+    }
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
+  const paginatedData = sortedData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const stats = {
+    total: formsData.length,
+    pending: formsData.filter(f => f.status === 'pending').length,
+    approved: formsData.filter(f => f.status === 'approved').length,
+    departments: new Set(formsData.map(f => f.department)).size
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col md:flex-row h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12  mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading RTI data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col md:flex-row h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="text-center bg-red-50 p-6 rounded-lg max-w-md w-full">
+            <svg className="mx-auto h-12 w-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p className="mt-2 text-red-600 font-medium">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen overflow-x-hidden transition-colors duration-300">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-50 overflow-hidden">
+      {/* Mobile Header */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 bg-white shadow-md z-20 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <h1 className="text-lg font-semibold text-gray-800">RTI Management</h1>
+            <div className="w-8"></div>
+          </div>
+        </div>
+      )}
 
-      {isMobileMenuOpen && (
+      {/* Sidebar Overlay */}
+      {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      <div className={`fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-900 shadow-2xl z-50 transform transition-transform duration-300 lg:hidden ${
-        isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}>
-        <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
-          <span className="font-bold text-purple-600 dark:text-purple-400">Menu</span>
-          <button onClick={() => setIsMobileMenuOpen(false)} className="p-2">
-            <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          </button>
-        </div>
-        <div className="p-4 space-y-2">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-all"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+      {/* Sidebar */}
+      <div className={`
+        fixed md:relative z-30
+        transform transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        md:translate-x-0
+      `}>
+        <Sidebar />
       </div>
-
-
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-
-            <Link to="/" className="flex items-center gap-2">
-              <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
-              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                TaskMaster
-              </span>
-            </Link>
-
-         
-            <div className="hidden lg:flex items-center gap-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium"
+      
+      {/* Main Content */}
+      <div className={`
+        flex-1 overflow-y-auto 
+        ${isMobile ? 'mt-14' : ''}
+      `}>
+        {/* Header */}
+        <div className="bg-white shadow-sm  sticky top-0 z-10">
+          <div className="px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-800">RTI Management</h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">Manage and track all RTI applications</p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <button 
+                  onClick={handleNavigate} 
+                  className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
-                  {link.label}
-                </Link>
-              ))}
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+                  </svg>
+                  <span className="hidden xs:inline">New</span> Registration
+                </button>
+                <button className="px-3 sm:px-4 py-2  rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2 text-sm sm:text-base">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                  </svg>
+                  <span className="hidden xs:inline">Export</span>
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
 
+      
+        <div className="p-3 sm:p-4 md:p-6">
         
-            <div className="flex items-center gap-2 sm:gap-3">
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all"
-              >
-                {isDarkMode ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
-              </button>
-              
-              <button
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-     
-      <button
-        onClick={toggleTheme}
-        className="fixed bottom-6 right-6 z-40 p-3 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200 dark:border-gray-700 shadow-lg hover:scale-110 transition-all duration-300 lg:hidden"
-        aria-label="Toggle theme"
-      >
-        {isDarkMode ? (
-          <Sun className="w-5 h-5 text-yellow-400" />
-        ) : (
-          <Moon className="w-5 h-5 text-purple-600" />
-        )}
-      </button>
-
-     
-      <div className="fixed inset-0 pointer-events-none transition-colors duration-500">
-        <div className={`absolute inset-0 transition-opacity duration-500 ${
-          isDarkMode 
-            ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 opacity-100' 
-            : 'bg-gradient-to-br from-purple-700 via-pink-600 to-indigo-800 opacity-90'
-        }`}></div>
-      </div>
-
-     
-      <div 
-        className="hidden lg:block fixed w-96 h-96 rounded-full pointer-events-none transition-all duration-300 ease-out z-10"
-        style={{
-          background: `radial-gradient(circle, ${
-            isDarkMode 
-              ? 'rgba(139,92,246,0.2) 0%, rgba(139,92,246,0) 70%'
-              : 'rgba(139,92,246,0.15) 0%, rgba(139,92,246,0) 70%'
-          })`,
-          left: mousePosition.x - 192,
-          top: mousePosition.y - 192,
-        }}
-      />
-
-
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-        
-        <div className="absolute inset-0 overflow-hidden">
-          <div className={`absolute top-20 left-10 w-48 h-48 sm:w-72 sm:h-72 rounded-full mix-blend-multiply filter blur-3xl animate-float opacity-30 ${
-            isDarkMode ? 'bg-purple-600' : 'bg-purple-500'
-          }`}></div>
-          <div className={`absolute bottom-20 right-10 w-48 h-48 sm:w-72 sm:h-72 rounded-full mix-blend-multiply filter blur-3xl animate-float-delay opacity-30 ${
-            isDarkMode ? 'bg-pink-600' : 'bg-pink-500'
-          }`}></div>
-          <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 sm:w-96 sm:h-96 rounded-full mix-blend-multiply filter blur-3xl animate-pulse opacity-20 ${
-            isDarkMode ? 'bg-indigo-600' : 'bg-indigo-500'
-          }`}></div>
-        </div>
-
-        <div className="relative text-center px-4 sm:px-6 z-20">
-          <div className="flex justify-center mb-6 sm:mb-8">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-2xl opacity-75 group-hover:opacity-100 transition-opacity animate-pulse"></div>
-              <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 rounded-full p-3 sm:p-4 animate-bounce-slow">
-                <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 text-white" />
-              </div>
-              <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 animate-ping">
-                <Rocket className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-yellow-400" />
-              </div>
-            </div>
-          </div>
-          
-          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-4 sm:mb-6 animate-fade-in px-2">
-            Welcome to{' '}
-            <span className="relative inline-block">
-              <span className="absolute inset-0 bg-gradient-to-r from-yellow-300 via-pink-300 to-purple-300 blur-2xl opacity-50"></span>
-              <span className="relative bg-gradient-to-r from-yellow-300 via-pink-300 to-purple-300 bg-clip-text text-transparent animate-gradient bg-300">
-                TaskMaster
-              </span>
-            </span>
-          </h1>
-          
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-8 sm:mb-12 max-w-3xl mx-auto animate-fade-in-delay px-4">
-            Organize your tasks, boost your productivity, and achieve your goals with our intuitive task management system.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center flex-wrap animate-fade-in-delay-2 px-4">
-            <Link to="/tasks" className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 px-6 sm:py-4 sm:px-8 rounded-full text-base sm:text-lg shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105">
-              <span className="flex items-center gap-2">
-                Get Started Free
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Link>
-            
-            <Link to="/about" className="group inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-lg border-2 border-white/30 text-white font-semibold py-3 px-6 sm:py-4 sm:px-8 rounded-full text-base sm:text-lg hover:bg-white/20 transition-all duration-300 hover:scale-105">
-              Learn More
-              <ThumbsUp className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
-            </Link>
-          </div>
-
-          <div className="hidden sm:block absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-              <div className="w-1 h-2 bg-white/50 rounded-full mt-2 animate-scroll"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="relative py-12 sm:py-16 md:py-20 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-            {stats.map((stat, index) => (
-              <div 
-                key={index} 
-                className={`group relative overflow-hidden rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center hover:transform hover:scale-105 transition-all duration-300 ${
-                  isDarkMode 
-                    ? 'bg-gray-800/50 backdrop-blur-lg border border-gray-700/50'
-                    : 'bg-white/10 backdrop-blur-lg'
-                }`}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-r ${stat.gradient} opacity-0 group-hover:opacity-20 transition-opacity`}></div>
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-r ${stat.gradient} flex items-center justify-center mx-auto mb-2 sm:mb-3 md:mb-4 group-hover:scale-110 transition-transform`}>
-                  <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white" />
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
+            <div className="bg-white rounded-lg shadow-sm  p-3 sm:p-4 md:p-6 hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-500">Total Apps</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{stats.total}</p>
                 </div>
-                <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-1 sm:mb-2 text-white">
-                  {stat.value}
-                </p>
-                <p className={`text-xs sm:text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-white/80'}`}>
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="relative py-12 sm:py-16 md:py-20 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-2 mb-3 sm:mb-4 ${
-              isDarkMode 
-                ? 'bg-gray-800/50 backdrop-blur-lg'
-                : 'bg-white/10 backdrop-blur-lg'
-            }`}>
-              <Gem className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" />
-              <span className={`text-xs sm:text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-white/90'}`}>
-                Premium Features
-              </span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4 px-2">
-              Why Choose{' '}
-              <span className="bg-gradient-to-r from-yellow-300 to-pink-300 bg-clip-text text-transparent">
-                TaskMaster
-              </span>
-              ?
-            </h2>
-            <p className={`text-base sm:text-lg md:text-xl max-w-2xl mx-auto px-4 ${isDarkMode ? 'text-gray-300' : 'text-white/80'}`}>
-              Discover the power of organized task management
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-            {features.map((feature, index) => (
-              <div 
-                key={index} 
-                className={`group relative rounded-xl sm:rounded-2xl p-5 sm:p-6 text-center hover:transform hover:scale-105 transition-all duration-300 ${
-                  isDarkMode 
-                    ? 'bg-gray-800/50 backdrop-blur-lg border border-gray-700/50'
-                    : 'bg-white/10 backdrop-blur-lg'
-                }`}
-              >
-                <div className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-r ${feature.color} flex items-center justify-center mx-auto mb-4 sm:mb-5 md:mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                  <feature.icon className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white" />
-                </div>
-                <h3 className={`text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 ${isDarkMode ? 'text-white' : 'text-white'}`}>
-                  {feature.title}
-                </h3>
-                <p className={`text-sm sm:text-base ${isDarkMode ? 'text-gray-300' : 'text-white/70'}`}>
-                  {feature.desc}
-                </p>
-                <div className="mt-3 sm:mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-white/50 mx-auto" />
+                <div className="bg-blue-100 p-2 sm:p-3 rounded-full">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-    
-      <div className="relative py-12 sm:py-16 md:py-20 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8 sm:mb-12">
-            <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-2 mb-3 sm:mb-4 ${
-              isDarkMode 
-                ? 'bg-gray-800/50 backdrop-blur-lg'
-                : 'bg-white/10 backdrop-blur-lg'
-            }`}>
-              <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-red-400" />
-              <span className={`text-xs sm:text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-white/90'}`}>
-                Loved by Users
-              </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4">
-              What Our{' '}
-              <span className="bg-gradient-to-r from-yellow-300 to-pink-300 bg-clip-text text-transparent">
-                Users Say
-              </span>
-            </h2>
+            <div className="bg-white rounded-lg shadow-sm  p-3 sm:p-4 md:p-6 hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-500">Pending</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                </div>
+                <div className="bg-yellow-100 p-2 sm:p-3 rounded-full">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm 3 sm:p-4 md:p-6 hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-500">Approved</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-green-600">{stats.approved}</p>
+                </div>
+                <div className="bg-green-100 p-2 sm:p-3 rounded-full">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-500">Depts</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-purple-600">{stats.departments}</p>
+                </div>
+                <div className="bg-purple-100 p-2 sm:p-3 rounded-full">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="relative">
-            <div className="overflow-hidden">
-              <div 
-                className="flex transition-transform duration-500 ease-out"
-                style={{ transform: `translateX(-${currentTestimonial * 100}%)` }}
+          
+          <div className="bg-white rounded-lg shadow-sm  p-3 sm:p-4 mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                  <input 
+                    type="text" 
+                    placeholder="Search by case number, applicant, or department..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 text-sm sm:text-base   rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              <select 
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 sm:px-4 py-2 text-sm sm:text-base  rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {testimonials.map((testimonial, index) => (
-                  <div key={index} className="w-full flex-shrink-0 px-2 sm:px-4">
-                    <div className={`rounded-xl sm:rounded-2xl p-6 sm:p-8 relative ${
-                      isDarkMode 
-                        ? 'bg-gray-800/50 backdrop-blur-lg border border-gray-700/50'
-                        : 'bg-white/10 backdrop-blur-lg'
-                    }`}>
-                      <div className="relative">
-                        <div className="flex gap-1 mb-3 sm:mb-4">
-                          {[...Array(testimonial.rating)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
-                          ))}
-                        </div>
-                        <p className={`text-sm sm:text-base md:text-lg mb-4 sm:mb-6 italic leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-white/90'}`}>
-                          "{testimonial.text}"
-                        </p>
-                        <div className="flex items-center gap-3 sm:gap-4">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                            <span className="text-white font-bold text-sm sm:text-base">{testimonial.image}</span>
-                          </div>
-                          <div>
-                            <p className={`font-bold text-sm sm:text-base ${isDarkMode ? 'text-white' : 'text-white'}`}>
-                              {testimonial.name}
-                            </p>
-                            <p className={`text-xs sm:text-sm ${isDarkMode ? 'text-gray-400' : 'text-white/70'}`}>
-                              {testimonial.role} at {testimonial.company}
-                            </p>
-                          </div>
-                        </div>
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="completed">Completed</option>
+              </select>
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 sm:px-4 py-2 text-sm sm:text-base  rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+              </select>
+            </div>
+          </div>
+
+          {isMobile ? (
+            <div className="space-y-3">
+              {paginatedData.map((form, index) => (
+                <div key={form._id} className="bg-white rounded-lg shadow-sm  p-4 hover:shadow-md transition">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500">Case Number</p>
+                      <p className="text-sm font-semibold text-gray-900">{form.rtiCaseNumber}</p>
+                    </div>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(form.status)}`}>
+                      {form.status.toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-500">Applicant</p>
+                      <p className="text-sm text-gray-900">{form.applicantName}</p>
+                      {form.emailId && <p className="text-xs text-gray-500">{form.emailId}</p>}
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-gray-500">Subject</p>
+                      <p className="text-sm text-gray-900 truncate">{form.subject}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-xs text-gray-500">Department</p>
+                        <p className="text-sm text-gray-900">{form.department}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Due Date</p>
+                        <p className="text-sm text-gray-900">{formatDate(form.dueDate)}</p>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex justify-center gap-1 sm:gap-2 mt-6 sm:mt-8">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentTestimonial(index)}
-                  className={`transition-all duration-300 ${
-                    currentTestimonial === index
-                      ? 'w-6 sm:w-8 h-1.5 sm:h-2 bg-white rounded-full'
-                      : 'w-1.5 sm:w-2 h-1.5 sm:h-2 bg-white/50 rounded-full hover:bg-white/70'
-                  }`}
-                />
+                  
+                  <div className="flex gap-3 mt-3 pt-3 ">
+                    <button 
+                      onClick={() => handleView(form)}
+                      className="flex-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition"
+                    >
+                      View
+                    </button>
+                    <button 
+                      onClick={() => handleEdit(form)}
+                      className="flex-1 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg text-sm font-medium hover:bg-green-100 transition"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="relative py-12 sm:py-16 md:py-20 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl sm:rounded-3xl blur-xl opacity-75 group-hover:opacity-100 transition-opacity animate-gradient"></div>
-            <div className={`relative rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 text-center overflow-hidden ${
-              isDarkMode 
-                ? 'bg-gradient-to-r from-gray-900/90 to-purple-900/90 backdrop-blur-lg'
-                : 'bg-gradient-to-r from-purple-900/90 to-indigo-900/90 backdrop-blur-lg'
-            }`}>
-              <Crown className="w-12 h-12 sm:w-16 sm:h-16 text-yellow-400 mx-auto mb-4 sm:mb-6 animate-bounce-slow" />
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 px-2">
-                Ready to boost your productivity?
-              </h2>
-              <p className={`text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto px-4 ${isDarkMode ? 'text-gray-300' : 'text-white/80'}`}>
-                Join thousands of users who trust TaskMaster for their daily task management.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center flex-wrap px-4">
-                <Link to="/add-task" className="group inline-flex items-center justify-center gap-2 bg-white text-purple-600 font-semibold py-2.5 px-5 sm:py-3 sm:px-8 rounded-full text-sm sm:text-base hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                  Start Free Trial
-                  <Coffee className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
-                </Link>
-                <Link to="/about" className="group inline-flex items-center justify-center gap-2 bg-white/20 backdrop-blur-lg text-white font-semibold py-2.5 px-5 sm:py-3 sm:px-8 rounded-full text-sm sm:text-base hover:bg-white/30 transition-all duration-300">
-                  Contact Sales
-                  <ThumbsUp className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
-                </Link>
+          ) : (
+            
+            <div className="bg-white rounded-lg shadow-sm  overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.No</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Case Number</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant Name</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Receipt Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {paginatedData.map((form, index) => (
+                      <tr key={form._id} className="hover:bg-gray-50 transition">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                          {(currentPage - 1) * itemsPerPage + index + 1}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{form.rtiCaseNumber}</div>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{form.applicantName}</div>
+                          <div className="text-xs text-gray-500">{form.emailId}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-sm text-gray-900 max-w-xs truncate">{form.subject}</div>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{form.department}</div>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(form.dateOfReceipt)}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(form.dueDate)}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(form.status)}`}>
+                            {form.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                          <button 
+                            onClick={() => handleView(form)}
+                            className="text-blue-600 hover:text-blue-900 mr-3 transition"
+                          >
+                            View
+                          </button>
+                          <button 
+                            onClick={() => handleEdit(form)}
+                            className="text-green-600 hover:text-green-900 transition"
+                          >
+                            Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-          </div>
+          )}
+          
+         
+          {paginatedData.length === 0 && (
+            <div className="bg-white rounded-lg shadow-sm border text-center py-8 sm:py-12">
+              <svg className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <p className="mt-2 text-gray-500">No RTI applications found</p>
+              {(searchTerm || statusFilter) && (
+                <button 
+                  onClick={() => {
+                    setSearchTerm('');
+                    setStatusFilter('');
+                  }}
+                  className="mt-3 text-blue-600 hover:text-blue-700 text-sm"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+          )}
+
+          {sortedData.length > 0 && (
+            <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="text-xs sm:text-sm text-gray-500 text-center sm:text-left">
+                Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                <span className="font-medium">{Math.min(currentPage * itemsPerPage, sortedData.length)}</span> of{' '}
+                <span className="font-medium">{sortedData.length}</span> results
+              </div>
+              <div className="flex justify-center gap-2">
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <div className="flex gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`px-3 py-1 rounded-md text-sm transition ${
+                          currentPage === pageNum
+                            ? 'bg-blue-600 text-white'
+                            : 'border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes float-delay {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
-        }
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fade-in-delay {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fade-in-delay-2 {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scroll {
-          0% { transform: translateY(0); opacity: 1; }
-          100% { transform: translateY(10px); opacity: 0; }
-        }
-        @keyframes gradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-        .animate-float-delay { animation: float-delay 7s ease-in-out infinite; }
-        .animate-bounce-slow { animation: bounce-slow 3s ease-in-out infinite; }
-        .animate-fade-in { animation: fade-in 0.8s ease-out; }
-        .animate-fade-in-delay { animation: fade-in-delay 0.8s ease-out 0.3s both; }
-        .animate-fade-in-delay-2 { animation: fade-in-delay-2 0.8s ease-out 0.6s both; }
-        .animate-scroll { animation: scroll 2s ease-in-out infinite; }
-        .animate-gradient { background-size: 200% 200%; animation: gradient 3s ease infinite; }
-        .bg-300 { background-size: 300% 300%; }
-      `}</style>
     </div>
   );
 };
